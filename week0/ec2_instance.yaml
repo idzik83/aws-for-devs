@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Simple EC2 instance"
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: "t2.micro"
+    AllowedValues: ["t2.micro", "m1.small", "m1.large"]
+    Description: "Type of EC2 instance"
+  InstanceAMI:
+    Type: String
+    Default: ami-0ca5c3bd5a268e7db
+    Description: "Amazon image id of the instance"
+  KeyPairName:
+    Type: String
+    Default: "default"
+    Description: "Name of the key pair to be assigned to the instance"
+Resources:
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      ImageId:
+        Ref: InstanceAMI
+      InstanceType:
+        Ref: InstanceTypeParameter
+      KeyName:
+        Ref: KeyPairName
+      SecurityGroups:
+        - !Ref SSHAccessSG
+  SSHAccessSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+Outputs:
+  PublicDNS:
+    Description: "Public DNS name"
+    Value: !GetAtt MyEC2Instance.PublicDnsName
