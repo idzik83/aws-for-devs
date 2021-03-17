@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "AutoScaling Group"
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: "t2.micro"
+    AllowedValues: ["t2.micro", "m1.small", "m1.large"]
+    Description: "Type of EC2 instance"
+  InstanceAMI:
+    Type: String
+    Default: ami-0ca5c3bd5a268e7db
+    Description: "Amazon image id of the instance"
+  KeyPairName:
+    Type: "AWS::EC2::KeyPair::KeyName"
+    Default: "aws-for-dev"
+    Description: "Name of the key pair to be assigned to the instance"
+Resources:
+  SSHAccessSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  AWS4devLaunchConfig:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    Properties:
+      ImageId:
+        Ref: InstanceAMI
+      InstanceType:
+        Ref: InstanceTypeParameter
+      KeyName:
+        Ref: KeyPairName
+      SecurityGroups:
+        - !Ref SSHAccessSG
+      UserData: !Base64 |
+        #!/bin/bash
+        sudo apt install default-jre -y
+  ASG:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: aws4dev-asg
+      MinSize: "2"
+      MaxSize: "4"
+      DesiredCapacity: "2"
+      AvailabilityZones: !GetAZs us-west-2
+      LaunchConfigurationName: !Ref AWS4devLaunchConfig
