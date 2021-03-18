@@ -24,20 +24,22 @@ Resources:
           FromPort: 22
           ToPort: 22
           CidrIp: 0.0.0.0/0
-  AWS4devLaunchConfig:
-    Type: "AWS::AutoScaling::LaunchConfiguration"
+  AWS4devLT:
+    Type: "AWS::EC2::LaunchTemplate"
     Properties:
-      ImageId:
-        Ref: InstanceAMI
-      InstanceType:
-        Ref: InstanceTypeParameter
-      KeyName:
-        Ref: KeyPairName
-      SecurityGroups:
-        - !Ref SSHAccessSG
-      UserData: !Base64 |
-        #!/bin/bash
-        sudo apt install default-jre -y
+      LaunchTemplateName: !Sub ${AWS::StackName}-launch-template-for-auto-scaling
+      LaunchTemplateData:
+        ImageId:
+          Ref: InstanceAMI
+        InstanceType:
+          Ref: InstanceTypeParameter
+        KeyName:
+          Ref: KeyPairName
+        SecurityGroups:
+          - !Ref SSHAccessSG
+        UserData: !Base64 |
+          #!/bin/bash
+          sudo apt install default-jre -y
   ASG:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
@@ -46,4 +48,6 @@ Resources:
       MaxSize: "4"
       DesiredCapacity: "2"
       AvailabilityZones: !GetAZs us-west-2
-      LaunchConfigurationName: !Ref AWS4devLaunchConfig
+      LaunchTemplate:
+        LaunchTemplateId: !Ref AWS4devLT
+        Version: !GetAtt AWS4devLT.LatestVersionNumber
