@@ -39,7 +39,7 @@ Resources:
           - !Ref SSHAccessSG
         UserData: !Base64 |
           #!/bin/bash
-          sudo apt install default-jre -y
+          apt update && apt install default-jre -y
   ASG:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
