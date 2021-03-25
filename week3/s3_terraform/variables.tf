@@ -38,7 +38,7 @@ data "aws_availability_zones" "available" {
 
 
 data "template_file" "init_script" {
-  template = "${path.module}/templates/init.tpl"
+  template = file("${path.module}/templates/init.tpl")
 
   vars = {
     bucket_name = var.bucket_name
