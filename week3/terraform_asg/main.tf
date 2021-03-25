@@ -27,7 +27,7 @@ resource "aws_launch_template" "aws_4_dev_lt" {
   image_id             = var.instance_ami
   instance_type        = var.instance_type
   key_name             = var.key_name
-  user_data            = filebase64("${path.module}/startup.sh")
+  user_data            = filebase64("${path.module}/scripts/startup.sh")
   security_group_names = [aws_security_group.aws_4_dev_sg.name]
 }
 

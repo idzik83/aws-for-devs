@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "S3 access from ec2 instance"
+Parameters:
+  InstanceTypeParameter:
+    Type: String
+    Default: "t2.micro"
+    AllowedValues: ["t2.micro", "m1.small", "m1.large"]
+    Description: "Type of EC2 instance"
+  InstanceAMI:
+    Type: String
+    Default: ami-0ca5c3bd5a268e7db
+    Description: "Amazon image id of the instance"
+  BucketName:
+    Type: String
+    Default: "aws-4-dev-iidzikovskyi"
+    Description: "Name of s3 bucket"
+  FileName:
+    Type: String
+    Default: "some.txt"
+    Description: "Name of the file to be downloaded from the bucket"
+  KeyPairName:
+    Type: "AWS::EC2::KeyPair::KeyName"
+    Default: "aws-for-dev"
+    Description: "Name of the key pair to be assigned to the instance"
+Resources:
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref AWS4devLT
+        Version: !GetAtt AWS4devLT.LatestVersionNumber
+  SSHAccessSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  HTTPAccessSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP access via port 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  S3BucketAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+  S3RolePolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: S3RolePolicies
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+            - Effect: Allow
+              Action:
+                - "s3:ListBucket"
+                - "s3:GetObject"
+              Resource: 'arn:aws:s3:::aws-4-dev-iidzikovskyi/*'
+      Roles:
+        - !Ref S3BucketAccessRole
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref S3BucketAccessRole
+  AWS4devLT:
+    Type: "AWS::EC2::LaunchTemplate"
+    Properties:
+      LaunchTemplateName: !Sub ${AWS::StackName}-launch-template-for-s3
+      LaunchTemplateData:
+        ImageId:
+          Ref: InstanceAMI
+        InstanceType:
+          Ref: InstanceTypeParameter
+        KeyName:
+          Ref: KeyPairName
+        SecurityGroups:
+          - !Ref SSHAccessSG
+          - !Ref HTTPAccessSG
+        IamInstanceProfile:
+          Arn: !GetAtt InstanceProfile.Arn
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            apt update && apt install awscli -y
+            aws s3 cp s3://${BucketName}/${FileName} .
