@@ -131,3 +131,6 @@ dmypy.json
 #terraform
 .terraform
 *.hcl
+.idea
+*.tfstate
+*.backup
