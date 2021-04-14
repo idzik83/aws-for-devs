@@ -58,6 +58,6 @@ resource "aws_security_group" "aws_4_dev_sg_http" {
   }
 }
 
-output "public_dns" {
-  value = aws_instance.aws_4_dev_s3.public_dns
+output "public_ip" {
+  value = aws_instance.aws_4_dev_s3.public_ip
 }
