@@ -61,3 +61,11 @@ resource "aws_security_group" "aws_4_dev_sg_http" {
 output "public_ip" {
   value = aws_instance.aws_4_dev_s3.public_ip
 }
+
+module "dynamodb" {
+  source = "./modules/dynamodb"
+}
+
+module "rds" {
+  source = "./modules/rds"
+}
