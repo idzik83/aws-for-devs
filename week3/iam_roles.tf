@@ -34,6 +34,7 @@ resource "aws_iam_policy" "aws_4_dev_s3_bucket_access_policy" {
     Statement = [
       {
         Action = [
+          "dynamodb:List*",
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:PutItem",
@@ -80,6 +81,6 @@ resource "aws_iam_role_policy_attachment" "aws_4_dev_rds_access_policy_attachmen
 }
 
 resource "aws_iam_instance_profile" "aws_4_dev_profile" {
-  name = "aws_4_dev_profile"
+  name = "aws_4_dev_w3_profile"
   role = aws_iam_role.aws_4_dev_iam_role.name
 }

@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#apt-get update && apt-get install jq
-table_name=$(aws dynamodb idzik list-tables | jq -r '.TableNames[0]')
+table_name=$(aws dynamodb list-tables | jq -r '.TableNames[0]')
 AWS_PAGER="" aws dynamodb put-item \
     --table-name $table_name  \
     --item \
