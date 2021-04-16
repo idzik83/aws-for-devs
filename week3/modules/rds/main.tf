@@ -6,4 +6,5 @@ resource "aws_db_instance" "aws_4_dev_rds" {
   username             = var.rds_username
   password             = var.rds_user_pass
   skip_final_snapshot  = true
+  security_group_names = []
 }

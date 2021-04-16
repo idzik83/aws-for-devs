@@ -55,20 +55,6 @@ resource "aws_iam_policy" "aws_4_dev_s3_bucket_access_policy" {
   })
 }
 
-resource "aws_iam_policy" "aws_4_dev_rds_access_policy" {
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "rds-db:connect"
-        ]
-        Resource = module.rds.rds_arn
-      }
-    ]
-  })
-}
 
 resource "aws_iam_role_policy_attachment" "aws_4_dev_dynamodb_access_policy" {
   policy_arn = aws_iam_policy.aws_4_dev_dynamodb_access_policy.arn
@@ -78,11 +64,6 @@ resource "aws_iam_role_policy_attachment" "aws_4_dev_dynamodb_access_policy" {
 
 resource "aws_iam_role_policy_attachment" "aws_4_dev_s3_bucket_access_policy_attachment" {
   policy_arn = aws_iam_policy.aws_4_dev_s3_bucket_access_policy.arn
-  role       = aws_iam_role.aws_4_dev_iam_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "aws_4_dev_rds_access_policy_attachment" {
-  policy_arn = aws_iam_policy.aws_4_dev_rds_access_policy.arn
   role       = aws_iam_role.aws_4_dev_iam_role.name
 }
 
