@@ -33,8 +33,14 @@ resource "aws_iam_policy" "aws_4_dev_s3_bucket_access_policy" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "ListTables"
+        Effect = "Allow"
+        Action = "dynamodb:ListTables"
+        Resource = "*"
+      },
+      {
+        Sid   = "AWS4DevTable"
         Action = [
-          "dynamodb:List*",
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:PutItem",
