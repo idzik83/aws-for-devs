@@ -6,7 +6,7 @@ resource "aws_db_instance" "aws_4_dev_rds" {
   username             = var.rds_username
   password             = var.rds_user_pass
   skip_final_snapshot  = true
-  security_group_names = [aws_security_group.ingress_rds.name]
+  vpc_security_group_ids = [aws_security_group.ingress_rds.id]
 }
 
 resource "aws_security_group" "ingress_rds" {
